@@ -1,36 +1,90 @@
+/**
+ * /model
+ */
 
-var cats = $(".cat");
-var buttons = $("button");
+let model = {
+	currentCat: null,
+	cats: [],
 
-function hideAllCats(){
-	for (var i=0; i<cats.length; i++){
-		$(cats[i]).hide();
-	}
-}
+	init: function() {
+		for(let i = 0; i < 5; i ++) {
+			cat = {
+				clickCount: 0,
+				name: `Cat${i+1}`,
+				imgSrc: `images/cat_picture${i+1}.jpg`,
+			};
+			this.cats.push(cat);
+		}
+	},
+};
 
-function bindButtonToCat(idNumber){
-	$("#button"+idNumber).click(function(){
-		hideAllCats();
-		$("#cat"+idNumber).show();
-	})
-}
+ /**
+  * Octopus
+  */
+let octopus = {
+	init: function() {
+		model.init();
+		model.currentCat = model.cats[0];
+		catListView.init();
+		catView.init();
+	},
 
-function bindCounterToCat(idNumber){
-	var cat = "#cat"+idNumber
-	$(cat).click(function(){
-		var count = $(cat+" > .counter").text();
-		count = parseInt(count) + 1;
-		$(cat+" > .counter").text(count);
-	})
-}
+	getCurrentCat: function() {
+		return model.currentCat;
+	},
 
-for (var i=1; i<=buttons.length; i++){
-	bindButtonToCat(i);
-}
+	getCats: function() {
+		return model.cats;
+	},
 
-for (var i=1; i<=cats.length; i++){
-	bindCounterToCat(i);
-}
+	setCurrentCat: function(cat) {
+		model.currentCat = cat;
+		catView.render();
+	},
 
-hideAllCats();
-$("#cat1").show();
+	incrementCountrt: function() {
+		model.currentCat.clickCount ++;
+		catView.render();
+	},
+ };
+
+ /**
+  * View
+  */
+let catView = {
+	init: function() {
+		this.$catElem = $('.cat');
+		this.$catNameElem = $('#cat-nmae');
+		this.$catImageElem = $('#cat-img');
+		this.$catCountElem = $('#cat-count');
+
+		this.$catImageElem.on('click', ()=>octopus.incrementCountrt());
+		this.render();
+	},
+
+	render: function() {
+		console.log("catview.render");
+		var currentCat = octopus.getCurrentCat();
+		this.$catNameElem.text(currentCat.name);
+		this.$catCountElem.text(currentCat.clickCount);
+		this.$catImageElem.attr("src", currentCat.imgSrc);
+	},
+};
+
+let catListView = {
+	init: function() {
+		this.$catListElem = $('#cat-list');
+		this.render();
+	},
+	
+	render: function() {
+		console.log("catListView.render");
+		for (let cat of octopus.getCats()) {
+			$catElem = $(`<li><a href="#">${cat.name}</a></li>`);
+			$catElem.on("click", () => octopus.setCurrentCat(cat));
+			this.$catListElem.append($catElem);
+		}
+	},
+};
+
+octopus.init();
